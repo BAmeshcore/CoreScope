@@ -1185,7 +1185,7 @@ const pages = {};
 
 function registerPage(name, mod) { pages[name] = mod; }
 
-// Tools landing page — shows sub-menu with Trace and Path Inspector (spec §2.8, M1 fix).
+// Tools landing page — shows sub-menu with Trace, Path Inspector and Airtime (spec §2.8, M1 fix).
 registerPage('tools-landing', {
   init: function (container) {
     container.innerHTML =
@@ -1194,6 +1194,7 @@ registerPage('tools-landing', {
         '<div class="tools-menu">' +
           '<a href="#/tools/path-inspector" class="tools-card"><h3><svg class="ph-icon" aria-hidden="true"><use href="/icons/phosphor-sprite.svg#ph-magnifying-glass"/></svg> Path Inspector</h3><p>Resolve prefix paths to candidate full-pubkey routes with confidence scoring.</p></a>' +
           '<a href="#/tools/trace/" class="tools-card"><h3><svg class="ph-icon" aria-hidden="true"><use href="/icons/phosphor-sprite.svg#ph-broadcast"/></svg> Trace Viewer</h3><p>View detailed packet traces by hash.</p></a>' +
+          '<a href="#/tools/airtime" class="tools-card"><h3><svg class="ph-icon" aria-hidden="true"><use href="/icons/phosphor-sprite.svg#ph-clock"/></svg> Airtime Calculator</h3><p>Time on air and hourly duty-cycle budget for a packet at given radio settings.</p></a>' +
         '</div>' +
       '</div>';
   },
@@ -1225,7 +1226,7 @@ function routeTitle(page, param) {
     home: '', packets: 'Packets', nodes: 'Nodes', map: 'Map', live: 'Live',
     channels: 'Channels', observers: 'Observers', analytics: 'Analytics',
     'scope-audit': 'Scope Audit', perf: 'Performance', 'audio-lab': 'Audio Lab',
-    'tools-landing': 'Tools', traces: 'Packet Trace', 'path-inspector': 'Path Inspector',
+    'tools-landing': 'Tools', traces: 'Packet Trace', 'path-inspector': 'Path Inspector', airtime: 'Airtime Calculator',
     account: 'Account', admin: 'Admin', compare: 'Observer Comparison', 'rx-coverage': 'RX Coverage',
   };
   return Object.prototype.hasOwnProperty.call(names, page) ? names[page] : 'Not Found';
@@ -1312,13 +1313,16 @@ function navigate() {
     basePage = 'observer-detail';
   }
 
-  // Tools sub-routing (issue #944): tools/trace/<hash>, tools/path-inspector
+  // Tools sub-routing (issue #944): tools/trace/<hash>, tools/path-inspector, tools/airtime
   if (basePage === 'tools') {
     if (routeParam && routeParam.startsWith('trace/')) {
       basePage = 'traces';
       routeParam = routeParam.substring(6); // strip "trace/"
     } else if (routeParam === 'path-inspector' || (routeParam && routeParam.startsWith('path-inspector'))) {
       basePage = 'path-inspector';
+      routeParam = null;
+    } else if (routeParam === 'airtime') {
+      basePage = 'airtime';
       routeParam = null;
     } else if (!routeParam) {
       // Default tools landing shows menu with both entries.
@@ -1332,7 +1336,7 @@ function navigate() {
 
   // Update nav active state
   document.querySelectorAll('.nav-link[data-route]').forEach(el => {
-    el.classList.toggle('active', el.dataset.route === basePage || (el.dataset.route === 'tools' && (basePage === 'traces' || basePage === 'path-inspector' || basePage === 'tools-landing')));
+    el.classList.toggle('active', el.dataset.route === basePage || (el.dataset.route === 'tools' && (basePage === 'traces' || basePage === 'path-inspector' || basePage === 'airtime' || basePage === 'tools-landing')));
   });
   // Update "More" button to show active state if a low-priority page is selected
   var moreBtn = document.getElementById('navMoreBtn');
